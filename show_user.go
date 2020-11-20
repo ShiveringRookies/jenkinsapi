@@ -1,5 +1,11 @@
 package jenkinsapi
 
+import (
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+)
+
 type User struct {
 	AbsoluteURL string `json:"absoluteUrl" xml:"absoluteUrl"`
 	FullName    string `json:"fullName" xml:"fullName"`
@@ -14,4 +20,24 @@ type UserInfo struct {
 type UserList struct {
 	Class string     `json:"_class"`
 	Users []UserInfo `json:"users"`
+}
+
+func (j *JenkinsClient) GetUserList() (userList *UserList, err error) {
+	req, err := http.NewRequest("GET", j.Addr, nil)
+	if err != nil {
+		return nil, err
+	}
+	j.SetAuth(req)
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+	resp, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(resp, &userList)
+	return userList, err
 }
