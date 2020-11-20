@@ -7,7 +7,7 @@ type AssignedLabel struct {
 }
 
 type BaseStruct struct {
-	Class string `json:"_class"`
+	Class string `json:"_class" xml:"_class,attr"`
 }
 
 type IndexInfo struct {
