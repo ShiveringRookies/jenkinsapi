@@ -1,5 +1,7 @@
 package jenkinsapi
 
+import "database/sql"
+
 type AssignedLabel struct {
 	Name string `json:"name" xml:"name"`
 }
@@ -15,7 +17,7 @@ type IndexInfo struct {
 	NodeDescription string          `json:"nodeDescription" xml:"nodeDescription"`
 	NodeName        string          `json:"nodeName" xml:"nodeName"`
 	NumExecutors    int             `json:"numExecutors" xml:"numExecutors"`
-	Description     interface{}     `json:"description" xml:"description"`
+	Description     sql.NullString  `json:"description" xml:"description"`
 	Jobs            []JenkinsJob    `json:"jobs"`
 	OverallLoad     interface{}     `json:"overallLoad" xml:"overallLoad"`
 	PrimaryView     JenkinsView     `json:"primaryView" xml:"primaryView"`
