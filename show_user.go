@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type User struct {
@@ -23,7 +24,7 @@ type UserList struct {
 }
 
 func (j *JenkinsClient) GetUserListJson() (userList *UserList, err error) {
-	req, err := http.NewRequest("GET", j.Addr+"/asynchPeople/api/json", nil)
+	req, err := http.NewRequest("GET", j.Addr+UserListJsonURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +59,11 @@ type UserInfo struct {
 }
 
 func (j *JenkinsClient) GetUserInfoJson(username string) (userList *UserInfo, err error) {
-	req, err := http.NewRequest("GET", j.Addr+"/user/"+username+"/api/json", nil)
+	req, err := http.NewRequest(
+		"GET",
+		j.Addr+strings.Replace(UserInfoJsonURL, "$username", username, 1),
+		nil,
+	)
 	if err != nil {
 		return nil, err
 	}
