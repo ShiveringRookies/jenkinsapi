@@ -22,8 +22,8 @@ type UserList struct {
 	Users []UserInfo `json:"users"`
 }
 
-func (j *JenkinsClient) GetUserList() (userList *UserList, err error) {
-	req, err := http.NewRequest("GET", j.Addr, nil)
+func (j *JenkinsClient) GetUserListJson() (userList *UserList, err error) {
+	req, err := http.NewRequest("GET", j.Addr+"/asynchPeople/api/json", nil)
 	if err != nil {
 		return nil, err
 	}
