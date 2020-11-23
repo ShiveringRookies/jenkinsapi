@@ -3,7 +3,6 @@ package jenkinsapi
 import (
 	"io/ioutil"
 	"net/http"
-	"net/url"
 )
 
 type BasicAuth struct {
@@ -22,11 +21,7 @@ func (j *JenkinsClient) Connect() (err error) {
 	if err != nil {
 		return err
 	}
-	if j.BearerAuth == "" {
-		req.SetBasicAuth(j.BasicAuth.UserName, j.BasicAuth.Password)
-	}
-	req.Method = "GET"
-	req.URL, _ = url.Parse(j.Addr)
+	j.SetAuth(req)
 	client := &http.Client{}
 	response, err := client.Do(req)
 	if err != nil {
@@ -35,4 +30,12 @@ func (j *JenkinsClient) Connect() (err error) {
 	defer response.Body.Close()
 	_, err = ioutil.ReadAll(response.Body)
 	return nil
+}
+
+func (j *JenkinsClient) SetAuth(req *http.Request) {
+	switch j.BearerAuth {
+	case "":
+		req.SetBasicAuth(j.BasicAuth.UserName, j.BasicAuth.Password)
+	default:
+	}
 }
