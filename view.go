@@ -1,6 +1,7 @@
 package jenkinsapi
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"encoding/xml"
@@ -84,4 +85,40 @@ func (j *JenkinsClient) GetViewConfig(viewName string) (viewConfig *ViewConfigXM
 	resp2 := strings.Replace(string(resp), "1.1", "1.0", 1)
 	err = xml.Unmarshal([]byte(resp2), &viewConfig)
 	return viewConfig, err
+}
+
+func (j *JenkinsClient) UpdateViewConfig(viewName string, viewConfig ViewConfigXML) (err error) {
+	cfgbytes, err := xml.Marshal(viewConfig)
+	if err != nil {
+		return err
+	}
+	cfg := strings.Replace(string(cfgbytes), "1.0", "1.1", 1)
+	payload := bytes.NewBuffer([]byte(cfg))
+	crumbIssue, err := j.GetJenkinsCrumb()
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest(
+		"POST",
+		j.Addr+strings.Replace(ViewConfigXMLURL, "$view", viewName, 1),
+		payload,
+	)
+	if err != nil {
+		return err
+	}
+	j.SetAuth(req)
+	req.Header.Set("Content-Type", "application/xml;charset=utf-8")
+	req.Header.Set(crumbIssue.CrumbRequestField, crumbIssue.Crumb)
+	req.Header.Set("Cookie", crumbIssue.Cookie)
+	client := &http.Client{}
+	response, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	_, err = ioutil.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+	return err
 }
